@@ -1,0 +1,40 @@
+services:
+    postgre:
+        image: postgres:12.17
+        ports:
+          - 5432:5432
+        restart: always
+        environment:
+          POSTGRES_PASSWORD: Pg123
+          POSTGRES_USER: kubenews
+          POSTGRES_DB: kubenewsdb
+        volumes:
+          - postgre_docker_vol:/var/lib/postgresql/data
+        networks:
+          - kubenews_net
+
+    kube_news:
+        image: adriansteinstrasser/kubenews:v1
+        ports:
+          - 80:8080
+        restart: always
+        depends_on: 
+          - postgre
+        environment:
+          DB_PASSWORD: Pg123
+          DB_USERNAME: kubenews
+          DB_DATABASE: kubenewsdb
+          DB_HOST: postgre
+        networks:
+          - kubenews_net
+
+volumes:
+  postgre_docker_vol:
+    name: postgre_docker_vol
+    external: true
+
+networks:
+  kubenews_net:
+    name: kubenews_net
+    driver: bridge
+    external: true
